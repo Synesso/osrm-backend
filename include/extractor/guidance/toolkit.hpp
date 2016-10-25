@@ -220,6 +220,8 @@ inline std::uint8_t getLaneCountAtIntersection(const NodeID intersection_node,
     return lanes;
 }
 
+// returns true if the obvious_candidate passed in is an obvious street to maneuver
+// onto because of the relation of its roadclass with the in_classification roadclass
 inline bool obviousByRoadClass(const RoadClassification in_classification,
                                const RoadClassification obvious_candidate,
                                const RoadClassification compare_candidate)
