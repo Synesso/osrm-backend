@@ -11,6 +11,7 @@
 
 #include <boost/assert.hpp>
 #include <boost/optional.hpp>
+#include <cstdint>
 #include <utility>
 
 namespace osrm
@@ -67,6 +68,27 @@ struct LengthLimitedCoordinateAccumulator
     const double max_length;
     double accumulated_length;
     std::vector<util::Coordinate> coordinates;
+};
+
+// find the next intersection given a hop limit
+struct IntersectionFinderAccumulator
+{
+    IntersectionFinderAccumulator(const std::uint8_t hop_limit);
+    // true if the path has traversed enough distance
+    bool terminate();
+
+    // update the accumulator
+    void update(const NodeID from_node,
+                const EdgeID via_edge,
+                const NodeID to_node,
+                const util::NodeBasedEdgeData &edge_data);
+
+    std::uint8_t hop_limit;
+    bool final_result;
+
+    // the result we are looking for
+    NodeID nid;
+    EdgeID vid_edge_id;
 };
 
 // The FollowRoadNameSelector tries to follow a given name along a route. We offer methods to skip

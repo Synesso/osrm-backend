@@ -2,8 +2,10 @@
 #define OSRM_EXTRACTOR_GUIDANCE_INTERSECTION_HPP_
 
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "util/guidance/toolkit.hpp"
 #include "extractor/guidance/turn_instruction.hpp"
 #include "util/guidance/toolkit.hpp"
 #include "util/typedefs.hpp" // EdgeID
