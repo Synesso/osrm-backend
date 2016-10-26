@@ -7,6 +7,7 @@
 
 #include "util/json_container.hpp"
 #include "util/json_renderer.hpp"
+#include "util/simple_logger.hpp"
 
 namespace osrm
 {
@@ -31,6 +32,7 @@ class GeojsonLogger
     // become friends with the guard
     friend class ScopedGeojsonLoggerGuard<geojson_conversion_policy, scenario>;
 
+    // having these private enforces the guard to be used to initialise/close/write
   private:
     // cannot lock, is tooling for locked function
     static void output(bool first, const util::json::Object &object)
@@ -55,7 +57,6 @@ class GeojsonLogger
         }
     }
 
-  public:
     // writes a single feature into the Geojson file
     template <typename... Args> static bool Write(Args &&... args)
     {
@@ -82,9 +83,6 @@ class GeojsonLogger
         return static_cast<bool>(ofs);
     }
 
-  private:
-    // having these private enforces the guard to be used to initialise/close
-
     // Opening a logger, we initialize a geojson feature collection
     // to be later filled with additional data
     static bool Open(const std::string &logfile)
@@ -93,7 +91,13 @@ class GeojsonLogger
         // logfile. However, there is a brief period between closing and openen where we could miss
         // out on log output. Such a sad life
         if (ofs.is_open())
+        {
+            util::SimpleLogger().Write(logWARNING)
+                << "Overwriting " << logfile
+                << ". Is this desired behaviour? If this message occurs more than once rethink the "
+                   "location of your Logger Guard.";
             Close();
+        }
 
         // make sure to syncronize logging output, cannot be locked earlier, since Close also locks
         // and we don't want deadlocks
@@ -140,7 +144,7 @@ class ScopedGeojsonLoggerGuard
 {
   public:
     template <typename... Args>
-    ScopedGeojsonLoggerGuard(const std::string logfile, Args &&... args)
+    ScopedGeojsonLoggerGuard(const std::string &logfile, Args &&... args)
         : policy(std::forward<Args>(args)...)
     {
         GeojsonLogger<geojson_conversion_policy, scenario>::Open(logfile);
@@ -151,6 +155,12 @@ class ScopedGeojsonLoggerGuard
     {
         GeojsonLogger<geojson_conversion_policy, scenario>::Close();
         GeojsonLogger<geojson_conversion_policy, scenario>::SetPolicy(nullptr);
+    }
+
+    template <typename... Args> static bool Write(Args &&... args)
+    {
+        return GeojsonLogger<geojson_conversion_policy, scenario>::Write(
+            std::forward<Args>(args)...);
     }
 
   private:

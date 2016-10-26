@@ -1,6 +1,6 @@
 #include "util/geojson_debug_policies.hpp"
-#include "util/geojson_debug_policy_toolkit.hpp"
 #include "util/coordinate.hpp"
+#include "util/geojson_debug_policy_toolkit.hpp"
 
 #include <algorithm>
 
@@ -17,7 +17,9 @@ NodeIdVectorToLineString::NodeIdVectorToLineString(
 }
 
 // converts a vector of node ids into a linestring geojson feature
-util::json::Object NodeIdVectorToLineString::operator()(const std::vector<NodeID> &node_ids) const
+util::json::Object NodeIdVectorToLineString::
+operator()(const std::vector<NodeID> &node_ids,
+           const boost::optional<json::Object> &properties) const
 {
     util::json::Array coordinates;
     std::transform(node_ids.begin(),
@@ -25,7 +27,7 @@ util::json::Object NodeIdVectorToLineString::operator()(const std::vector<NodeID
                    std::back_inserter(coordinates.values),
                    NodeIdToCoordinate(node_coordinates));
 
-    return makeFeature("LineString", coordinates);
+    return makeFeature("LineString", std::move(coordinates), properties);
 }
 
 //----------------------------------------------------------------
@@ -34,7 +36,9 @@ NodeIdVectorToMultiPoint::NodeIdVectorToMultiPoint(
     : node_coordinates(node_coordinates)
 {
 }
-util::json::Object NodeIdVectorToMultiPoint::operator()(const std::vector<NodeID> &node_ids) const
+util::json::Object NodeIdVectorToMultiPoint::
+operator()(const std::vector<NodeID> &node_ids,
+           const boost::optional<json::Object> &properties) const
 {
     util::json::Array coordinates;
     std::transform(node_ids.begin(),
@@ -42,23 +46,25 @@ util::json::Object NodeIdVectorToMultiPoint::operator()(const std::vector<NodeID
                    std::back_inserter(coordinates.values),
                    NodeIdToCoordinate(node_coordinates));
 
-    return makeFeature("MultiPoint", coordinates);
+    return makeFeature("MultiPoint", std::move(coordinates), properties);
 }
 
 //----------------------------------------------------------------
 util::json::Object CoordinateVectorToMultiPoint::
-operator()(const std::vector<util::Coordinate> &input_coordinates) const
+operator()(const std::vector<util::Coordinate> &input_coordinates,
+           const boost::optional<json::Object> &properties) const
 {
     const auto coordinates = makeJsonArray(input_coordinates);
-    return makeFeature("MultiPoint", coordinates);
+    return makeFeature("MultiPoint", std::move(coordinates), properties);
 }
 
 //----------------------------------------------------------------
 util::json::Object CoordinateVectorToLineString::
-operator()(const std::vector<util::Coordinate> &input_coordinates) const
+operator()(const std::vector<util::Coordinate> &input_coordinates,
+           const boost::optional<json::Object> &properties) const
 {
     const auto coordinates = makeJsonArray(input_coordinates);
-    return makeFeature("LineString", coordinates);
+    return makeFeature("LineString", std::move(coordinates), properties);
 }
 
 } /* namespace util */
