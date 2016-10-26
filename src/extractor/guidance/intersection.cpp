@@ -1,6 +1,8 @@
 #include "extractor/guidance/intersection.hpp"
 #include "extractor/guidance/toolkit.hpp"
 
+#include <boost/assert.hpp>
+
 namespace osrm
 {
 namespace extractor
@@ -30,23 +32,24 @@ std::string toString(const ConnectedRoad &road)
     return result;
 }
 
+static auto makeAngularDeviationComparator(double angle)
+{
+    return [angle](const ConnectedRoad &lhs, const ConnectedRoad &rhs) {
+        return angularDeviation(lhs.turn.angle, angle) < angularDeviation(rhs.turn.angle, angle);
+    };
+}
+
 Intersection::iterator findClosestTurn(Intersection &intersection, const double angle)
 {
-    return std::min_element(intersection.begin(),
-                            intersection.end(),
-                            [angle](const ConnectedRoad &lhs, const ConnectedRoad &rhs) {
-                                return angularDeviation(lhs.turn.angle, angle) <
-                                       angularDeviation(rhs.turn.angle, angle);
-                            });
+    BOOST_ASSERT(intersection.size() > 0);
+    auto byAngle = makeAngularDeviationComparator(angle);
+    return std::min_element(intersection.begin(), intersection.end(), byAngle);
 }
 Intersection::const_iterator findClosestTurn(const Intersection &intersection, const double angle)
 {
-    return std::min_element(intersection.cbegin(),
-                            intersection.cend(),
-                            [angle](const ConnectedRoad &lhs, const ConnectedRoad &rhs) {
-                                return angularDeviation(lhs.turn.angle, angle) <
-                                       angularDeviation(rhs.turn.angle, angle);
-                            });
+    BOOST_ASSERT(intersection.size() > 0);
+    auto byAngle = makeAngularDeviationComparator(angle);
+    return std::min_element(intersection.cbegin(), intersection.cend(), byAngle);
 }
 
 } // namespace guidance

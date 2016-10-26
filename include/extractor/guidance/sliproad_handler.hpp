@@ -13,6 +13,8 @@
 #include <utility>
 #include <vector>
 
+#include <boost/optional.hpp>
+
 namespace osrm
 {
 namespace extractor
@@ -22,7 +24,7 @@ namespace guidance
 
 // Intersection handlers deal with all issues related to intersections.
 // They assign appropriate turn operations to the TurnOperations.
-class SliproadHandler : public IntersectionHandler
+class SliproadHandler final : public IntersectionHandler
 {
   public:
     SliproadHandler(const IntersectionGenerator &intersection_generator,
@@ -42,6 +44,30 @@ class SliproadHandler : public IntersectionHandler
     Intersection operator()(const NodeID nid,
                             const EdgeID via_eid,
                             Intersection intersection) const override final;
+
+  private:
+    struct IntersectionAndNode final
+    {
+        Intersection intersection;
+        NodeID node;
+    };
+
+    // Returns a potential next intersection along a road skipping over traffic lights.
+    boost::optional<IntersectionAndNode> getNextIntersection(const NodeID at,
+                                                             const ConnectedRoad &road) const;
+
+    boost::optional<std::size_t> getObviousIndexWithSliproads(const EdgeID from,
+                                                              const Intersection &intersection,
+                                                              const NodeID at) const;
+
+    // Length between intersection starting at `start` and the turn onto `onto`
+    int getLengthToIntersection(const NodeID start, const EdgeID onto) const;
+
+    // Through street: does a road continue with from's name at the intersection
+    bool isThroughStreet(const EdgeID from, const Intersection &intersection) const;
+
+    // Could a Sliproad reach this intersection?
+    static bool canBeTargetOfSliproad(const Intersection &intersection);
 };
 
 } // namespace guidance
