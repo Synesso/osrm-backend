@@ -37,16 +37,16 @@ struct NodeIdToCoordinate
     }
 };
 
-inline util::json::Object makeFeature(const std::string &type, util::json::Array coordinates)
+inline util::json::Object makeFeature(std::string type, util::json::Array coordinates)
 {
     util::json::Object result;
     util::json::Object properties;
     result.values["type"] = "Feature";
     result.values["properties"] = properties;
     util::json::Object geometry;
-    geometry.values["type"] = type;
+    geometry.values["type"] = std::move(type);
     geometry.values["properties"] = properties;
-    geometry.values["coordinates"] = coordinates;
+    geometry.values["coordinates"] = std::move(coordinates);
     result.values["geometry"] = geometry;
 
     return result;

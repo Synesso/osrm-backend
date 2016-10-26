@@ -41,9 +41,8 @@ operator()(const NodeID intersection_node,
                    std::back_inserter(coordinates),
                    road_to_coordinate);
 
-    const auto json_coordinates = makeJsonArray(coordinates);
     util::json::Array features;
-    features.values.push_back(util::makeFeature("MultiPoint", json_coordinates));
+    features.values.push_back(util::makeFeature("MultiPoint", makeJsonArray(coordinates)));
 
     if (coordinates.size() > 1)
     {

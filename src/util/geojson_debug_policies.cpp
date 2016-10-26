@@ -25,7 +25,7 @@ util::json::Object NodeIdVectorToLineString::operator()(const std::vector<NodeID
                    std::back_inserter(coordinates.values),
                    NodeIdToCoordinate(node_coordinates));
 
-    return makeFeature("LineString", coordinates);
+    return makeFeature("LineString", std::move(coordinates));
 }
 
 //----------------------------------------------------------------
@@ -42,7 +42,7 @@ util::json::Object NodeIdVectorToMultiPoint::operator()(const std::vector<NodeID
                    std::back_inserter(coordinates.values),
                    NodeIdToCoordinate(node_coordinates));
 
-    return makeFeature("MultiPoint", coordinates);
+    return makeFeature("MultiPoint", std::move(coordinates));
 }
 
 //----------------------------------------------------------------
@@ -50,7 +50,7 @@ util::json::Object CoordinateVectorToMultiPoint::
 operator()(const std::vector<util::Coordinate> &input_coordinates) const
 {
     const auto coordinates = makeJsonArray(input_coordinates);
-    return makeFeature("MultiPoint", coordinates);
+    return makeFeature("MultiPoint", std::move(coordinates));
 }
 
 //----------------------------------------------------------------
@@ -58,7 +58,7 @@ util::json::Object CoordinateVectorToLineString::
 operator()(const std::vector<util::Coordinate> &input_coordinates) const
 {
     const auto coordinates = makeJsonArray(input_coordinates);
-    return makeFeature("LineString", coordinates);
+    return makeFeature("LineString", std::move(coordinates));
 }
 
 } /* namespace util */
