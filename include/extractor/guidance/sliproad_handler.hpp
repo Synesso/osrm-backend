@@ -9,6 +9,9 @@
 #include "util/name_table.hpp"
 #include "util/node_based_graph.hpp"
 
+#include "util/geojson_debug_logger.hpp"
+#include "util/geojson_debug_policies.hpp"
+
 #include <cstddef>
 #include <utility>
 #include <vector>
@@ -46,6 +49,11 @@ class SliproadHandler final : public IntersectionHandler
                             Intersection intersection) const override final;
 
   private:
+    util::ScopedGeojsonLoggerGuard<util::NodeIdVectorToMultiPoint> points_sentry;
+    util::ScopedGeojsonLoggerGuard<util::NodeIdVectorToLineString> lines_sentry;
+    using GeoJSONPoints = util::GeojsonLogger<util::NodeIdVectorToMultiPoint>;
+    using GeoJSONLines = util::GeojsonLogger<util::NodeIdVectorToLineString>;
+
     struct IntersectionAndNode final
     {
         Intersection intersection;

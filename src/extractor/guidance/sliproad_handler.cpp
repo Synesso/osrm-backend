@@ -32,7 +32,9 @@ SliproadHandler::SliproadHandler(const IntersectionGenerator &intersection_gener
                           node_info_list,
                           name_table,
                           street_name_suffix_table,
-                          intersection_generator)
+                          intersection_generator),
+      points_sentry{"sliproads_points.geojson", node_info_list},
+      lines_sentry{"sliproads_lines.geojson", node_info_list}
 {
 }
 
@@ -174,9 +176,13 @@ operator()(const NodeID /*nid*/, const EdgeID source_edge_id, Intersection inter
             if (is_ramp || is_link)
                 continue;
 
+            const auto target = node_based_graph.GetTarget(candidate_road.turn.eid);
+
             if (node_based_graph.GetTarget(candidate_road.turn.eid) == next->node)
             {
                 road.turn.instruction.type = TurnType::Sliproad;
+                GeoJSONPoints::Write(std::vector<NodeID>{intersection_node_id, next->node, target});
+                GeoJSONLines::Write(std::vector<NodeID>{intersection_node_id, target});
                 break;
             }
             else
@@ -189,6 +195,9 @@ operator()(const NodeID /*nid*/, const EdgeID source_edge_id, Intersection inter
                 {
 
                     road.turn.instruction.type = TurnType::Sliproad;
+                    GeoJSONPoints::Write(
+                        std::vector<NodeID>{intersection_node_id, next->node, target});
+                    GeoJSONLines::Write(std::vector<NodeID>{intersection_node_id, target});
                     break;
                 }
             }
