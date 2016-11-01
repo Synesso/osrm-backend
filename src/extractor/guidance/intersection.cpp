@@ -49,6 +49,37 @@ Intersection::const_iterator findClosestTurn(const Intersection &intersection, c
                             });
 }
 
+Intersection::Base::iterator Intersection::findClosestTurn(double angle)
+{
+    return std::min_element(
+        this->begin(), this->end(), [angle](const ConnectedRoad &lhs, const ConnectedRoad &rhs) {
+            return util::guidance::angularDeviation(lhs.turn.angle, angle) <
+                   util::guidance::angularDeviation(rhs.turn.angle, angle);
+        });
+}
+
+Intersection::Base::const_iterator Intersection::findClosestTurn(double angle) const
+{
+    return std::min_element(
+        this->begin(), this->end(), [angle](const ConnectedRoad &lhs, const ConnectedRoad &rhs) {
+            return util::guidance::angularDeviation(lhs.turn.angle, angle) <
+                   util::guidance::angularDeviation(rhs.turn.angle, angle);
+        });
+}
+
+std::uint8_t Intersection::getLaneCount(const util::NodeBasedDynamicGraph &node_based_graph) const
+{
+    const auto extract_lanes = [&node_based_graph](const ConnectedRoad &road) {
+        return node_based_graph.GetEdgeData(road.turn.eid).road_classification.GetNumberOfLanes();
+    };
+    return extract_lanes(*std::max_element(
+        this->begin(),
+        this->end(),
+        [&node_based_graph, extract_lanes](const ConnectedRoad &lhs, const ConnectedRoad &rhs) {
+            return extract_lanes(lhs) < extract_lanes(rhs);
+        }));
+}
+
 } // namespace guidance
 } // namespace extractor
 } // namespace osrm

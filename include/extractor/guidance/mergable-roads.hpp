@@ -74,8 +74,9 @@ inline bool isNarrowTriangle(const NodeID intersection_node,
         right_accumulator(5, intersection_generator);
 
     // Standard following the straightmost road
+    // Since both items have the same id, we can `select` based on any setup
     SelectRoadByNameOnlyChoiceAndStraightness selector(
-        node_based_graph.GetEdgeData(edge_id).name_id, false);
+        node_based_graph.GetEdgeData(lhs.turn.eid).name_id, false);
 
     NodeBasedGraphWalker graph_walker(node_based_graph, intersection_generator);
     graph_walker.TraverseRoad(intersection_node, lhs.turn.eid, left_accumulator, selector);
@@ -92,13 +93,26 @@ inline bool isNarrowTriangle(const NodeID intersection_node,
     if (angularDeviation(connector_turn->turn.angle, 90) > NARROW_TURN_ANGLE)
         return false;
 
+    // the width we can bridge at the intersection
+    const auto assumed_lane_width =
+        .5 * getLaneCountAtIntersection(intersection_node, node_based_graph) * 3.25;
+
+    if (util::coordinate_calculation::haversineDistance(
+            node_coordinates[node_based_graph.GetTarget(left_accumulator.via_edge_id)],
+            node_coordinates[node_based_graph.GetTarget(right_accumulator.via_edge_id)]) >
+        (2 * assumed_lane_width + 8))
+        return false;
+
+    // check if both intersections are connected
     IntersectionFinderAccumulator connect_accumulator(5, intersection_generator);
     graph_walker.TraverseRoad(node_based_graph.GetTarget(left_accumulator.via_edge_id),
                               connector_turn->turn.eid,
                               connect_accumulator,
                               selector);
 
-
+    // the if both items are connected
+    return node_based_graph.GetTarget(connect_accumulator.via_edge_id) ==
+           node_based_graph.GetTarget(right_accumulator.via_edge_id);
 }
 
 inline bool connectAgain(const NodeID intersection_node,
@@ -235,8 +249,16 @@ inline bool canMergeRoad(const NodeID intersection_node,
     if (angularDeviation(lhs.turn.angle, rhs.turn.angle) > 60)
         return false;
 
-    //    if (connectAgain(intersection_node, lhs, rhs, node_based_graph, intersection_generator))
-    //        return true;
+    if (isNarrowTriangle(intersection_node,
+                         lhs,
+                         rhs,
+                         node_based_graph,
+                         node_coordinates,
+                         intersection_generator))
+        return true;
+
+    if (connectAgain(intersection_node, lhs, rhs, node_based_graph, intersection_generator))
+        return true;
 
     // finally check if two roads describe the same way
     return haveSameDirection(intersection_node,

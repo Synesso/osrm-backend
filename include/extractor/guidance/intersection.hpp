@@ -1,13 +1,14 @@
 #ifndef OSRM_EXTRACTOR_GUIDANCE_INTERSECTION_HPP_
 #define OSRM_EXTRACTOR_GUIDANCE_INTERSECTION_HPP_
 
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "util/guidance/toolkit.hpp"
 #include "extractor/guidance/turn_instruction.hpp"
 #include "util/guidance/toolkit.hpp"
+#include "util/node_based_graph.hpp"
 #include "util/typedefs.hpp" // EdgeID
 
 namespace osrm
@@ -66,25 +67,11 @@ struct Intersection final : public std::vector<ConnectedRoad>
 {
     using Base = std::vector<ConnectedRoad>;
 
-    inline Base::iterator findClosestTurn(double angle)
-    {
-        return std::min_element(this->begin(),
-                                this->end(),
-                                [angle](const ConnectedRoad &lhs, const ConnectedRoad &rhs) {
-                                    return util::guidance::angularDeviation(lhs.turn.angle, angle) <
-                                           util::guidance::angularDeviation(rhs.turn.angle, angle);
-                                });
-    }
+    Base::iterator findClosestTurn(double angle);
+    Base::const_iterator findClosestTurn(double angle) const;
 
-    inline Base::const_iterator findClosestTurn(double angle) const
-    {
-        return std::min_element(this->begin(),
-                                this->end(),
-                                [angle](const ConnectedRoad &lhs, const ConnectedRoad &rhs) {
-                                    return util::guidance::angularDeviation(lhs.turn.angle, angle) <
-                                           util::guidance::angularDeviation(rhs.turn.angle, angle);
-                                });
-    }
+    // get the maxmimum number of lanes coming into the intersection
+    std::uint8_t getLaneCount(const util::NodeBasedDynamicGraph &node_based_graph) const;
 };
 
 Intersection::const_iterator findClosestTurn(const Intersection &intersection, const double angle);
