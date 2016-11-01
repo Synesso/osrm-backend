@@ -221,7 +221,7 @@ bool IntersectionGenerator::CanMerge(const NodeID node_at_intersection,
                                      std::size_t first_index,
                                      std::size_t second_index) const
 {
-    if( intersection.size() <= 2 )
+    if (intersection.size() <= 2)
         return false;
 
     const auto &first_data = node_based_graph.GetEdgeData(intersection[first_index].turn.eid);
@@ -500,8 +500,8 @@ Intersection IntersectionGenerator::MergeSegregatedRoads(const NodeID intersecti
         intersection.end());
 
     if (merged)
-        util::GeojsonLogger<extractor::IntersectionPrinter>::Write(intersection_node,
-                                                                   intersection_copy);
+        util::ScopedGeojsonLoggerGuard<extractor::IntersectionPrinter>::Write(intersection_node,
+                                                                              intersection_copy);
 
     const auto ByAngle = [](const ConnectedRoad &first, const ConnectedRoad second) {
         return first.turn.angle < second.turn.angle;
