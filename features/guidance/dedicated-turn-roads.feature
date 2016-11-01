@@ -431,3 +431,35 @@ Feature: Slipways and Dedicated Turn Lanes
         When I route I should get
             | waypoints | route          | turns                          |
             | a,i       | road,road,road | depart,fork slight left,arrive |
+
+
+    # The following tests are current false positives / false negatives #3199
+
+    @sliproads
+    # http://www.openstreetmap.org/#map=19/52.59847/13.14815
+    Scenario: Sliproad Detection
+        Given the node map
+            """
+            a                            . . .
+              .                         .
+                b  . . . . . .  c . . . d
+                  `             .       .
+                    e           .       .
+                       `        .       .
+                          f     .       .
+                             `  .       .
+                                g       i
+                                   ` h .
+            """
+
+        And the ways
+            | nodes  | highway     | name              |
+            | abefgh | residential | Nachtigallensteig |
+            | bcd    | residential | Kiebitzsteig      |
+            | cg     | residential | Haenflingsteig    |
+            | hid    | residential | Waldkauzsteig     |
+
+       When I route I should get
+            | waypoints | route                                        | turns                   |
+            | a,d       | Nachtigallensteig,Kiebitzsteig,Kiebitzsteig  | depart,turn left,arrive |
+            | a,h       | Nachtigallensteig,Nachtigallensteig          | depart,arrive           |

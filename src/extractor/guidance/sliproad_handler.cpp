@@ -166,6 +166,14 @@ operator()(const NodeID /*nid*/, const EdgeID source_edge_id, Intersection inter
             if (target_road_names.count(candidate_data.name_id) == 0)
                 continue;
 
+            // Restrict Sliproad classification to ramp and link road classes.
+            // Sliproads not tagged like that is an data issue and we err on the safe side.
+            const auto is_ramp = candidate_data.road_classification.IsRampClass();
+            const auto is_link = candidate_data.road_classification.IsLinkClass();
+
+            if (is_ramp || is_link)
+                continue;
+
             if (node_based_graph.GetTarget(candidate_road.turn.eid) == next->node)
             {
                 road.turn.instruction.type = TurnType::Sliproad;
