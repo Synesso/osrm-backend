@@ -8,38 +8,6 @@
 #include "storage/shared_memory.hpp"
 #include "engine/datafacade/memory_datafacade_base.hpp"
 
-#include "extractor/compressed_edge_container.hpp"
-#include "extractor/guidance/turn_instruction.hpp"
-#include "extractor/guidance/turn_lane_types.hpp"
-#include "extractor/profile_properties.hpp"
-#include "util/guidance/bearing_class.hpp"
-#include "util/guidance/entry_class.hpp"
-#include "util/guidance/turn_lanes.hpp"
-
-#include "engine/geospatial_query.hpp"
-#include "util/guidance/turn_bearing.hpp"
-#include "util/packed_vector.hpp"
-#include "util/range_table.hpp"
-#include "util/rectangle.hpp"
-#include "util/simple_logger.hpp"
-#include "util/static_graph.hpp"
-#include "util/static_rtree.hpp"
-#include "util/typedefs.hpp"
-
-#include <boost/assert.hpp>
-#include <boost/interprocess/sync/named_sharable_mutex.hpp>
-#include <boost/interprocess/sync/sharable_lock.hpp>
-#include <boost/thread/tss.hpp>
-
-#include <algorithm>
-#include <cstddef>
-#include <iterator>
-#include <limits>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
 namespace osrm
 {
 namespace engine

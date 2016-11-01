@@ -3,9 +3,6 @@
 
 // implements all data storage when shared memory _IS_ used
 
-#include "storage/shared_barriers.hpp"
-#include "storage/shared_datatype.hpp"
-#include "storage/shared_memory.hpp"
 #include "engine/datafacade/datafacade_base.hpp"
 
 #include "extractor/compressed_edge_container.hpp"
