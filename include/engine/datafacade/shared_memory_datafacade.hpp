@@ -78,7 +78,7 @@ class SharedDataFacade : public MemoryDataFacadeBase
         BOOST_ASSERT(storage::SharedMemory::RegionExists(data_region));
         m_large_memory = storage::makeSharedMemory(data_region);
         memory_block = (char *)(m_large_memory->Ptr());
-        LoadData();
+        Init();
     }
 };
 }

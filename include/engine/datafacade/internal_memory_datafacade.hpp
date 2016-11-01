@@ -15,9 +15,11 @@ namespace datafacade
 
 /**
  * This datafacade uses a process-local memory block to load
- * data into.  The logic is otherwise identical to the SharedMemoryFacade,
- * so we can just extend from that class.  This class holds a unique_ptr
- * to the memory blocks, so they are auto-freed upon destruction.
+ * data into.  The structure and layout is the same as when using
+ * shared memory, so this class, and the SharedDatafacade both
+ * share a common base.
+ * This class holds a unique_ptr to the memory block, so it
+ * is auto-freed upon destruction.
  */
 class InternalDataFacade final : public MemoryDataFacadeBase
 {
@@ -39,12 +41,12 @@ class InternalDataFacade final : public MemoryDataFacadeBase
         internal_memory.reset(new char[internal_layout->GetSizeOfLayout()]);
         storage.LoadData(internal_layout.get(), internal_memory.get());
 
-        // Set up the SharedDataFacade pointers
+        // Set the common base-class pointers
         data_layout = internal_layout.get();
         memory_block = internal_memory.get();
 
         // Adjust all the private m_* members to point to the right places
-        LoadData();
+        Init();
     }
 };
 }

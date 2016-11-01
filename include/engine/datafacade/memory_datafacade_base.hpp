@@ -113,20 +113,20 @@ class MemoryDataFacadeBase : public BaseDataFacade
     std::shared_ptr<util::RangeTable<16, true>> m_bearing_ranges_table;
     util::ShM<DiscreteBearing, true>::vector m_bearing_values_table;
 
-    void LoadChecksum()
+    void InitChecksum()
     {
         m_check_sum =
             *data_layout->GetBlockPtr<unsigned>(memory_block, storage::DataLayout::HSGR_CHECKSUM);
         util::SimpleLogger().Write() << "set checksum: " << m_check_sum;
     }
 
-    void LoadProfileProperties()
+    void InitProfileProperties()
     {
         m_profile_properties = data_layout->GetBlockPtr<extractor::ProfileProperties>(
             memory_block, storage::DataLayout::PROPERTIES);
     }
 
-    void LoadTimestamp()
+    void InitTimestamp()
     {
         auto timestamp_ptr =
             data_layout->GetBlockPtr<char>(memory_block, storage::DataLayout::TIMESTAMP);
@@ -136,7 +136,7 @@ class MemoryDataFacadeBase : public BaseDataFacade
                   m_timestamp.begin());
     }
 
-    void LoadRTree()
+    void InitRTree()
     {
         BOOST_ASSERT_MSG(!m_coordinate_list.empty(), "coordinates must be loaded before r-tree");
 
@@ -161,7 +161,7 @@ class MemoryDataFacadeBase : public BaseDataFacade
             new SharedGeospatialQuery(*m_static_rtree, m_coordinate_list, *this));
     }
 
-    void LoadGraph()
+    void InitGraph()
     {
         auto graph_nodes_ptr =
             data_layout->GetBlockPtr<GraphNode>(memory_block, storage::DataLayout::GRAPH_NODE_LIST);
@@ -176,7 +176,7 @@ class MemoryDataFacadeBase : public BaseDataFacade
         m_query_graph.reset(new QueryGraph(node_list, edge_list));
     }
 
-    void LoadNodeAndEdgeInformation()
+    void InitNodeAndEdgeInformation()
     {
         const auto coordinate_list_ptr = data_layout->GetBlockPtr<util::Coordinate>(
             memory_block, storage::DataLayout::COORDINATE_LIST);
@@ -249,7 +249,7 @@ class MemoryDataFacadeBase : public BaseDataFacade
         m_post_turn_bearing = std::move(post_turn_bearing);
     }
 
-    void LoadViaNodeList()
+    void InitViaNodeList()
     {
         auto via_geometry_list_ptr =
             data_layout->GetBlockPtr<GeometryID>(memory_block, storage::DataLayout::VIA_NODE_LIST);
@@ -258,7 +258,7 @@ class MemoryDataFacadeBase : public BaseDataFacade
         m_via_geometry_list = std::move(via_geometry_list);
     }
 
-    void LoadNames()
+    void InitNames()
     {
         auto offsets_ptr =
             data_layout->GetBlockPtr<unsigned>(memory_block, storage::DataLayout::NAME_OFFSETS);
@@ -279,7 +279,7 @@ class MemoryDataFacadeBase : public BaseDataFacade
         m_names_char_list = std::move(names_char_list);
     }
 
-    void LoadTurnLaneDescriptions()
+    void InitTurnLaneDescriptions()
     {
         auto offsets_ptr = data_layout->GetBlockPtr<std::uint32_t>(
             memory_block, storage::DataLayout::LANE_DESCRIPTION_OFFSETS);
@@ -295,7 +295,7 @@ class MemoryDataFacadeBase : public BaseDataFacade
         m_lane_description_masks = std::move(masks);
     }
 
-    void LoadCoreInformation()
+    void InitCoreInformation()
     {
         auto core_marker_ptr =
             data_layout->GetBlockPtr<unsigned>(memory_block, storage::DataLayout::CORE_MARKER);
@@ -304,7 +304,7 @@ class MemoryDataFacadeBase : public BaseDataFacade
         m_is_core_node = std::move(is_core_node);
     }
 
-    void LoadGeometries()
+    void InitGeometries()
     {
         auto geometries_index_ptr =
             data_layout->GetBlockPtr<unsigned>(memory_block, storage::DataLayout::GEOMETRIES_INDEX);
@@ -361,7 +361,7 @@ class MemoryDataFacadeBase : public BaseDataFacade
         m_datasource_name_lengths = std::move(datasource_name_lengths);
     }
 
-    void LoadIntersectionClasses()
+    void InitIntersectionClasses()
     {
         auto bearing_class_id_ptr = data_layout->GetBlockPtr<BearingClassID>(
             memory_block, storage::DataLayout::BEARING_CLASSID);
@@ -395,20 +395,20 @@ class MemoryDataFacadeBase : public BaseDataFacade
     }
 
   public:
-    void LoadData()
+    void Init()
     {
-        LoadGraph();
-        LoadChecksum();
-        LoadNodeAndEdgeInformation();
-        LoadGeometries();
-        LoadTimestamp();
-        LoadViaNodeList();
-        LoadNames();
-        LoadTurnLaneDescriptions();
-        LoadCoreInformation();
-        LoadProfileProperties();
-        LoadRTree();
-        LoadIntersectionClasses();
+        InitGraph();
+        InitChecksum();
+        InitNodeAndEdgeInformation();
+        InitGeometries();
+        InitTimestamp();
+        InitViaNodeList();
+        InitNames();
+        InitTurnLaneDescriptions();
+        InitCoreInformation();
+        InitProfileProperties();
+        InitRTree();
+        InitIntersectionClasses();
     }
 
     // search graph access
