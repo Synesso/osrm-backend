@@ -169,3 +169,47 @@ Feature: Basic Map Matching
         When I match I should get
             | trace | matchings | geometry                                   |
             | abd   | abd       | 1,1,1.000089,1,1.000089,1,1.000089,0.99991 |
+
+
+    # Regression test 1 for issue 3176
+    Scenario: Testbot - multiuple segments: properly expose OSM IDs
+        Given the query options
+            | annotations | true    |
+
+        Given the node map
+            """
+            a-1-b--c--d--e--f-2-g
+            """
+
+        And the ways
+            | nodes | oneway |
+            | ab    | no     |
+            | bc    | no     |
+            | cd    | no     |
+            | de    | no     |
+            | ef    | no     |
+            | fg    | no     |
+
+        When I match I should get
+            | trace | OSM IDs       |
+            | 12    | 1,2,3,4,5,6,7 |
+            | 21    | 7,6,5,4,3,2,1 |
+
+    # Regression test 2 for issue 3176
+    Scenario: Testbot - same edge: properly expose OSM IDs
+        Given the query options
+            | annotations | true    |
+
+        Given the node map
+            """
+            a-1-b--c--d--e-2-f
+            """
+
+        And the ways
+            | nodes   | oneway |
+            | abcdef  | no     |
+
+        When I match I should get
+            | trace | OSM IDs     |
+            | 12    | 1,2,3,4,5,6 |
+            | 21    | 6,5,4,3,2,1 |

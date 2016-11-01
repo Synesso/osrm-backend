@@ -151,9 +151,11 @@ module.exports = function () {
                         }
                     };
 
-                    row.matchings.split(',').forEach((sub, si) => {
-                        q.defer(testSubMatching, sub, si);
-                    });
+                    if (headers.has('matchings')) {
+                        row.matchings.split(',').forEach((sub, si) => {
+                            q.defer(testSubMatching, sub, si);
+                        });
+                    }
 
                     q.awaitAll(() => {
                         if (ok) {
