@@ -88,7 +88,7 @@ struct IntersectionFinderAccumulator
 
     // the result we are looking for
     NodeID nid;
-    EdgeID vid_edge_id;
+    EdgeID via_edge_id;
 };
 
 // The FollowRoadNameSelector tries to follow a given name along a route. We offer methods to skip

@@ -145,13 +145,13 @@ inline bool haveSameDirection(const NodeID intersection_node,
     };
 
     const auto coordinates_to_the_left =
-        coordinate_extractor.SampleCoordinates(getCoordinatesAlongWay(lhs.turn.eid, 100), 100, 2);
+        coordinate_extractor.SampleCoordinates(getCoordinatesAlongWay(lhs.turn.eid, 100), 100, 5);
     const auto coordinates_to_the_right =
-        coordinate_extractor.SampleCoordinates(getCoordinatesAlongWay(rhs.turn.eid, 100), 100, 2);
+        coordinate_extractor.SampleCoordinates(getCoordinatesAlongWay(rhs.turn.eid, 100), 100, 5);
 
     // The final coordinates are like really close together
     if (util::coordinate_calculation::haversineDistance(coordinates_to_the_left.back(),
-                                                        coordinates_to_the_right.back()) < 5)
+                                                        coordinates_to_the_right.back()) < 10)
         return true;
 
     const auto are_parallel = util::coordinate_calculation::areParallel(
@@ -196,8 +196,8 @@ inline bool canMergeRoad(const NodeID intersection_node,
     if (angularDeviation(lhs.turn.angle, rhs.turn.angle) > 60)
         return false;
 
-    if (connectAgain(intersection_node, lhs, rhs, node_based_graph, intersection_generator))
-        return true;
+//    if (connectAgain(intersection_node, lhs, rhs, node_based_graph, intersection_generator))
+//        return true;
 
     // finally check if two roads describe the same way
     return haveSameDirection(intersection_node,
