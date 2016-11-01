@@ -73,22 +73,25 @@ struct LengthLimitedCoordinateAccumulator
 // find the next intersection given a hop limit
 struct IntersectionFinderAccumulator
 {
-    IntersectionFinderAccumulator(const std::uint8_t hop_limit);
+    IntersectionFinderAccumulator(const std::uint8_t hop_limit, const IntersectionGenerator &intersection_generator);
     // true if the path has traversed enough distance
     bool terminate();
 
     // update the accumulator
     void update(const NodeID from_node,
                 const EdgeID via_edge,
-                const NodeID to_node,
-                const util::NodeBasedEdgeData &edge_data);
+                const NodeID to_node);
 
-    std::uint8_t hop_limit;
-    bool final_result;
+    std::uint8_t hops;
+    const std::uint8_t hop_limit;
+
+    // we need to be able to look-up the intersection
+    const IntersectionGenerator &intersection_generator;
 
     // the result we are looking for
     NodeID nid;
     EdgeID via_edge_id;
+    Intersection intersection;
 };
 
 // The FollowRoadNameSelector tries to follow a given name along a route. We offer methods to skip

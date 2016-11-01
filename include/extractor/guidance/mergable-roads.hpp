@@ -60,7 +60,46 @@ inline auto makeCheckRoadForName(const NameID name_id,
     return [name_id, &node_based_graph](const ConnectedRoad &road) {
         return name_id == node_based_graph.GetEdgeData(road.turn.eid).name_id;
     };
-};
+}
+
+inline bool isNarrowTriangle(const NodeID intersection_node,
+                             const ConnectedRoad &lhs,
+                             const ConnectedRoad &rhs,
+                             const util::NodeBasedDynamicGraph &node_based_graph,
+                             const std::vector<QueryNode> &node_coordinates,
+                             const IntersectionGenerator &intersection_generator)
+{
+    // selection data to the right and left
+    IntersectionFinderAccumulator left_accumulator(5, intersection_generator),
+        right_accumulator(5, intersection_generator);
+
+    // Standard following the straightmost road
+    SelectRoadByNameOnlyChoiceAndStraightness selector(
+        node_based_graph.GetEdgeData(edge_id).name_id, false);
+
+    NodeBasedGraphWalker graph_walker(node_based_graph, intersection_generator);
+    graph_walker.TraverseRoad(intersection_node, lhs.turn.eid, left_accumulator, selector);
+    graph_walker.TraverseRoad(intersection_node, rhs.turn.eid, right_accumulator, selector);
+
+    BOOST_ASSERT(!left_accumulator.intersection.empty() && !right_accumulator.intersection.empty());
+
+    // find the closes resembling a right turn
+    const auto connector_turn = left_accumulator.intersection.findClosestTurn(90);
+    // check if that right turn connects to the right_accumulator intersection (i.e. we have a
+    // triangle)
+
+    // a connection should be somewhat to the right
+    if (angularDeviation(connector_turn->turn.angle, 90) > NARROW_TURN_ANGLE)
+        return false;
+
+    IntersectionFinderAccumulator connect_accumulator(5, intersection_generator);
+    graph_walker.TraverseRoad(node_based_graph.GetTarget(left_accumulator.via_edge_id),
+                              connector_turn->turn.eid,
+                              connect_accumulator,
+                              selector);
+
+
+}
 
 inline bool connectAgain(const NodeID intersection_node,
                          const ConnectedRoad &lhs,
@@ -196,8 +235,8 @@ inline bool canMergeRoad(const NodeID intersection_node,
     if (angularDeviation(lhs.turn.angle, rhs.turn.angle) > 60)
         return false;
 
-//    if (connectAgain(intersection_node, lhs, rhs, node_based_graph, intersection_generator))
-//        return true;
+    //    if (connectAgain(intersection_node, lhs, rhs, node_based_graph, intersection_generator))
+    //        return true;
 
     // finally check if two roads describe the same way
     return haveSameDirection(intersection_node,
