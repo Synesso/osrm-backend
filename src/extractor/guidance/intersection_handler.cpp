@@ -397,7 +397,9 @@ std::size_t IntersectionHandler::findObviousTurn(const EdgeID via_edge,
         return 1;
 
     std::size_t best = 0;
+    double best_deviation = 180;
     std::size_t best_continue = 0;
+    double best_continue_deviation = 180;
 
     const EdgeData &in_way = node_based_graph.GetEdgeData(via_edge);
 
@@ -453,7 +455,10 @@ std::size_t IntersectionHandler::findObviousTurn(const EdgeID via_edge,
         return way.entry_allowed && way.same_or_higher_priority;
     };
     const auto best_candidate_it = std::find_if(begin(out_ways), end(out_ways), ok_priority);
-    best = best_candidate_it != end(out_ways) ? best_candidate_it->index : 0;
+    if (best_candidate_it != end(out_ways)) {
+        best = best_candidate_it->index;
+        best_deviation = best_candidate_it->deviation_from_straight;
+    }
 
     // No non-low priority roads? Declare no obvious turn
     if (best == 0)
@@ -462,7 +467,10 @@ std::size_t IntersectionHandler::findObviousTurn(const EdgeID via_edge,
     // set best_continue as the out way that continues with the same name as the in way
     const auto sameName = [](const out_way &lhs) { return lhs.same_name_id == true && lhs.entry_allowed; };
     const auto best_continue_it = std::find_if(begin(out_ways), end(out_ways), sameName);
-    best_continue = best_continue_it != end(out_ways) ? best_continue_it->index : 0;
+    if (best_continue_it != end(out_ways)) {
+        best_continue = best_continue_it->index;
+        best_continue_deviation = best_continue_it->deviation_from_straight;
+    }
 
     // get a count of number of ways from that intersection that qualify to have
     // continue instruction because they share a name with the approaching way
@@ -505,8 +513,6 @@ std::size_t IntersectionHandler::findObviousTurn(const EdgeID via_edge,
     }();
 
     const auto &best_data = node_based_graph.GetEdgeData(intersection[best].turn.eid);
-    const double &best_deviation = out_ways[best].deviation_from_straight;
-    const double &best_continue_deviation = out_ways[best_continue].deviation_from_straight;
 
     // return true if the best candidate is more promising than the best_continue candidate
     // otherwise return false, the best_continue candidate is more promising
